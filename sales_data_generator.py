@@ -4,6 +4,14 @@ import random
 from datetime import datetime, timedelta
 from tkinter.font import Font
 
+
+# pyinstaller --onefile --noconsole sales_data_generator.py
+
+
+############################## if There is an icon ################################
+# pyinstaller --onefile --noconsole --icon=path/to/icon.ico sales_data_generator.py
+
+
 # The divider function
 def divider(title):
     return (
