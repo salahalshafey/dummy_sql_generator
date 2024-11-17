@@ -151,7 +151,7 @@ def handle_generate():
 
         all_result = result
         result_text.delete('1.0', tk.END)
-        result_text.insert(tk.END, result)
+        result_text.insert(tk.END, result[0] + result[1])
     except ValueError as e:
         result_text.delete('1.0', tk.END)
         result_text.insert(tk.END, f"Invalid input: {e}. Please check your entries.")
