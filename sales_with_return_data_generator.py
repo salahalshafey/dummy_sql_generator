@@ -121,10 +121,10 @@ def generate_random_sales_data_with_returns(
 ( 
     divider("Insert sale returns")
         + sale_returns_sql
-        + divider("Insert sale return details")
-        + sale_return_details_sql
         + divider("Insert sale return payments")
         + sale_return_payments_sql
+        + divider("Insert sale return details")
+        + sale_return_details_sql
 ),
         )
 

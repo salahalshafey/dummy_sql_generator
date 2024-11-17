@@ -92,8 +92,8 @@ def generate_random_purchase_data_with_returns(
         ),
         (
           returns_sql + ",\n".join(returns_values) + ";"
-        + return_details_sql + ",\n".join(return_details_values) + ";"
         + return_payments_sql + ",\n".join(return_payments_values) + ";"
+        + return_details_sql + ",\n".join(return_details_values) + ";"
         )
     )
 
