@@ -24,12 +24,12 @@ def divider(title):
 def generate_random_purchase_data_with_returns(
     num_records, purchase_id_starting, return_id_starting, supplier_id_range, employee_id_range,
     date_range, payment_method_id_range, payment_amount_range, purchase_details_range,
-    product_unit_id_range, purchase_price_range, quantity_range, return_range,
+    product_unit_id_range, purchase_price_range, quantity_range, unit_discount_range, return_range,
     return_reason_list, return_details_range, return_payment_range, return_chance
 ):
     purchases_sql = divider(f"Insert {num_records} Purchases starting from purchase_id {purchase_id_starting}") + "INSERT INTO `trade`.`purchase` (`supplier_id`, `employee_id`, `date`)\nVALUES\n"
     payments_sql = divider("Insert Purchase Payments") + "INSERT INTO `trade`.`purchase_payment` (`purchase_id`, `employee_id`, `payment_method_id`, `amount`, `notes`, `payment_date`)\nVALUES\n"
-    purchase_details_sql = divider("Insert Purchase Details") + "INSERT INTO `trade`.`purchase_detail` (`purchase_id`, `product_unit_id`, `purchase_price`, `quantity`)\nVALUES\n"
+    purchase_details_sql = divider("Insert Purchase Details") + "INSERT INTO `trade`.`purchase_detail` (`purchase_id`, `product_unit_id`, `purchase_price`, `quantity`, `unit_discount`)\nVALUES\n"
     returns_sql = divider("Insert Purchase Returns") + "INSERT INTO `trade`.`purchase_return` (`purchase_id`, `employee_id`, `supplier_id`, `date`, `reason`)\nVALUES\n"
     return_details_sql = divider("Insert Purchase Return Details") + "INSERT INTO `trade`.`purchase_return_detail` (`purchase_return_id`, `product_unit_id`, `purchase_return_price`, `quantity`)\nVALUES\n"
     return_payments_sql = divider("Insert Purchase Return Payments") + "INSERT INTO `trade`.`purchase_return_payment` (`purchase_return_id`, `employee_id`, `payment_method_id`, `amount`, `notes`, `payment_date`)\nVALUES\n"
@@ -60,7 +60,8 @@ def generate_random_purchase_data_with_returns(
             product_unit_id = random.randint(product_unit_id_range[0], product_unit_id_range[1])
             purchase_price = round(random.uniform(purchase_price_range[0], purchase_price_range[1]), 2)
             quantity = random.randint(quantity_range[0], quantity_range[1])
-            purchase_details_values.append(f"({purchase_id}, {product_unit_id}, {purchase_price}, {quantity})")
+            unit_discount = round(random.uniform(unit_discount_range[0], unit_discount_range[1]), 2)
+            purchase_details_values.append(f"({purchase_id}, {product_unit_id}, {purchase_price}, {quantity}, {unit_discount})")
             purchase_detail_map[purchase_id].append((product_unit_id, purchase_price, quantity))
         
         if random.randint(1, 100) <= return_chance:
@@ -135,6 +136,7 @@ def handle_generate():
         product_unit_id_range = (int(product_unit_min_entry.get()), int(product_unit_max_entry.get()))
         purchase_price_range = (float(purchase_price_min_entry.get()), float(purchase_price_max_entry.get()))
         quantity_range = (int(quantity_min_entry.get()), int(quantity_max_entry.get()))
+        unit_discount_range = (float(unit_discount_min_entry.get()), float(unit_discount_max_entry.get()))
         
         return_range = (int(return_min_entry.get()), int(return_max_entry.get()))
         return_details_range = (int(return_detail_min_entry.get()), int(return_detail_max_entry.get()))
@@ -145,7 +147,7 @@ def handle_generate():
         result = generate_random_purchase_data_with_returns(
             num_records, purchase_id_starting, return_id_starting, supplier_id_range, employee_id_range,
             date_range, payment_method_id_range, payment_amount_range,
-            purchase_details_range, product_unit_id_range, purchase_price_range, quantity_range,
+            purchase_details_range, product_unit_id_range, purchase_price_range, quantity_range, unit_discount_range,
             return_range, return_reason_list, return_details_range, return_payment_range, return_chance
         )
 
@@ -284,48 +286,59 @@ quantity_max_entry = tk.Entry(inputs_frame)
 quantity_max_entry.insert(0, "30")
 quantity_max_entry.grid(row=5, column=7, padx=5, pady=5)
 
-tk.Label(inputs_frame, text="Return Min", bg="#f0f0f0").grid(row=6, column=0, sticky="w", padx=5, pady=5)
+# Additional input for unit discount range
+tk.Label(inputs_frame, text="Unit Discount Min", bg="#f0f0f0").grid(row=6, column=0, sticky="w", padx=5, pady=5)
+unit_discount_min_entry = tk.Entry(inputs_frame)
+unit_discount_min_entry.insert(0, "5.00")
+unit_discount_min_entry.grid(row=6, column=1, padx=5, pady=5)
+
+tk.Label(inputs_frame, text="Unit Discount Max", bg="#f0f0f0").grid(row=6, column=2, sticky="w", padx=5, pady=5)
+unit_discount_max_entry = tk.Entry(inputs_frame)
+unit_discount_max_entry.insert(0, "10.00")
+unit_discount_max_entry.grid(row=6, column=3, padx=5, pady=5)
+
+tk.Label(inputs_frame, text="Return Min", bg="#f0f0f0").grid(row=7, column=0, sticky="w", padx=5, pady=5)
 return_min_entry = tk.Entry(inputs_frame)
 return_min_entry.insert(0, "1")
-return_min_entry.grid(row=6, column=1, padx=5, pady=5)
+return_min_entry.grid(row=7, column=1, padx=5, pady=5)
 
-tk.Label(inputs_frame, text="Return Max", bg="#f0f0f0").grid(row=6, column=2, sticky="w", padx=5, pady=5)
+tk.Label(inputs_frame, text="Return Max", bg="#f0f0f0").grid(row=7, column=2, sticky="w", padx=5, pady=5)
 return_max_entry = tk.Entry(inputs_frame)
 return_max_entry.insert(0, "2")
-return_max_entry.grid(row=6, column=3, padx=5, pady=5)
+return_max_entry.grid(row=7, column=3, padx=5, pady=5)
 
-tk.Label(inputs_frame, text="Return Details Min", bg="#f0f0f0").grid(row=7, column=0, sticky="w", padx=5, pady=5)
+tk.Label(inputs_frame, text="Return Details Min", bg="#f0f0f0").grid(row=8, column=0, sticky="w", padx=5, pady=5)
 return_detail_min_entry = tk.Entry(inputs_frame)
 return_detail_min_entry.insert(0, "1")
-return_detail_min_entry.grid(row=7, column=1, padx=5, pady=5)
+return_detail_min_entry.grid(row=8, column=1, padx=5, pady=5)
 
-tk.Label(inputs_frame, text="Return Details Max", bg="#f0f0f0").grid(row=7, column=2, sticky="w", padx=5, pady=5)
+tk.Label(inputs_frame, text="Return Details Max", bg="#f0f0f0").grid(row=8, column=2, sticky="w", padx=5, pady=5)
 return_detail_max_entry = tk.Entry(inputs_frame)
 return_detail_max_entry.insert(0, "5")
-return_detail_max_entry.grid(row=7, column=3, padx=5, pady=5)
+return_detail_max_entry.grid(row=8, column=3, padx=5, pady=5)
 
-tk.Label(inputs_frame, text="Return Payment Min", bg="#f0f0f0").grid(row=7, column=4, sticky="w", padx=5, pady=5)
+tk.Label(inputs_frame, text="Return Payment Min", bg="#f0f0f0").grid(row=8, column=4, sticky="w", padx=5, pady=5)
 return_payment_min_entry = tk.Entry(inputs_frame)
 return_payment_min_entry.insert(0, "1")
-return_payment_min_entry.grid(row=7, column=5, padx=5, pady=5)
+return_payment_min_entry.grid(row=8, column=5, padx=5, pady=5)
 
-tk.Label(inputs_frame, text="Return Payment Max", bg="#f0f0f0").grid(row=7, column=6, sticky="w", padx=5, pady=5)
+tk.Label(inputs_frame, text="Return Payment Max", bg="#f0f0f0").grid(row=8, column=6, sticky="w", padx=5, pady=5)
 return_payment_max_entry = tk.Entry(inputs_frame)
 return_payment_max_entry.insert(0, "1")
-return_payment_max_entry.grid(row=7, column=7, padx=5, pady=5)
+return_payment_max_entry.grid(row=8, column=7, padx=5, pady=5)
 
-tk.Label(inputs_frame, text="Return Reasons (comma-separated)", bg="#f0f0f0").grid(row=8, column=0, sticky="w", padx=5, pady=5)
+tk.Label(inputs_frame, text="Return Reasons (comma-separated)", bg="#f0f0f0").grid(row=9, column=0, sticky="w", padx=5, pady=5)
 return_reason_entry = tk.Entry(inputs_frame, width=50)
 return_reason_entry.insert(0, "Defective,Expired,Wrong Item")
-return_reason_entry.grid(row=8, column=1, columnspan=7, padx=5, pady=5)
+return_reason_entry.grid(row=9, column=1, columnspan=7, padx=5, pady=5)
 
 # Button to generate SQL
 generate_button = tk.Button(window, text="Generate SQL", command=handle_generate, bg="#007BFF", fg="white", font=("Arial", 12))
-generate_button.grid(row=9, column=0, padx=10, pady=10, sticky="ew")
+generate_button.grid(row=10, column=0, padx=10, pady=10, sticky="ew")
 
 # Result text area with a copy button
 result_frame = ttk.Frame(window, padding="10")
-result_frame.grid(row=10, column=0, sticky="nsew", padx=10, pady=5)
+result_frame.grid(row=11, column=0, sticky="nsew", padx=10, pady=5)
 
 result_text = scrolledtext.ScrolledText(result_frame, wrap=tk.WORD, width=120, height=15, font=("Consolas", 10))
 result_text.grid(row=0, column=0, padx=5, pady=5)
